@@ -44,7 +44,6 @@ namespace TodoAppAPI.Controllers
             return Ok();
         }
 
-        // POST: Todo/Delete/5
         [HttpDelete("{id}")]
         public async Task<IActionResult> Delete(int id)
         {
