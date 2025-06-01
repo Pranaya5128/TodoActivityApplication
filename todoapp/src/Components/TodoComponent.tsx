@@ -3,6 +3,7 @@ import { TodoDto } from '../Dtos/TodoDto';
 import { addTodo, deleteTodo, editTodo, getTodos } from '../Services/TodoService';
 import Grid from './GridComponent';
 import { Button } from 'react-bootstrap';
+import Toaster from './Toaster';
 
 const Todo: React.FC = () => {
     const [todoList, setTodoList] = useState<TodoDto[]>([]);
@@ -15,6 +16,9 @@ const Todo: React.FC = () => {
     useEffect(() => {
         loadTodoList();
     }, []);
+
+    const [showToaster, setShowToaster] = useState(false);
+    const [toasterMessage, setToasterMessage] = useState("");
 
     async function loadTodoList() {
         try {
@@ -34,7 +38,10 @@ const Todo: React.FC = () => {
         };
         try {
             await addTodo(newTodo);
+            setToasterMessage("Todo successfully saved.");
+            setShowToaster(true);
             await loadTodoList();
+            setTimeout(() => setShowToaster(false), 3000);
             setTodo({
                 todoActivity: '',
                 isCompleted: false,
@@ -48,7 +55,10 @@ const Todo: React.FC = () => {
     async function deleteClick(id: number) {
         try {
             await deleteTodo(id);
+            setToasterMessage("Todo deleted.");
+            setShowToaster(true);
             await loadTodoList();
+            setTimeout(() => setShowToaster(false), 3000);
         } catch (err) {
             console.error("Error deleting todo", err);
         }
@@ -57,7 +67,10 @@ const Todo: React.FC = () => {
     async function editClick(id: number) {
         try {
             await editTodo(id);
+            setToasterMessage("Todo is completed.");
+            setShowToaster(true);
             await loadTodoList();
+            setTimeout(() => setShowToaster(false), 3000);
         } catch (err) {
             console.error("Error deleting todo", err);
         }
@@ -88,7 +101,7 @@ const Todo: React.FC = () => {
                     &nbsp; Please enter a Deadline &nbsp;
                     <input name="deadline" type="date" value={todo.deadline} onChange={handleChange}></input>
                     &nbsp;
-                    <Button disabled={error !== '' ? true : false} onClick={() => addCick()}>Add Task</Button>
+                    <Button disabled={error !== '' || todo.todoActivity.trim() === '' ? true : false} onClick={() => addCick()}>Add Task</Button>
                 </p>
                 {error && <p style={{ color: "red" }}>{error}</p>}
 
@@ -97,6 +110,7 @@ const Todo: React.FC = () => {
                 <h1>Todo Activity List</h1>
                 <Grid data={todoList} onMarkCompleteButtonClick={id => editClick(id)} onDeleteButtonClick={id => deleteClick(id)} />
             </div>
+            <Toaster toasterMessage={toasterMessage} isVisible={showToaster} />
         </div>
     );
 };
